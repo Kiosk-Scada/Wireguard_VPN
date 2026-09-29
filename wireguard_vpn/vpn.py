@@ -312,8 +312,9 @@ def _activate_key(s: dict, doc, public_key: str) -> list[str]:
 # --------------------------------------------------------------------------- API: router-i
 def _payload(s: dict, doc) -> dict:
     from wireguard_vpn import router_script
+    from wireguard_vpn.remote import lan_forwards
 
-    device_ip = doc.device_lan_ip if doc.device_lan_ip and LAN_IP_RE.match(doc.device_lan_ip) else None
+    forwards = lan_forwards(doc)
     title = f"{doc.site_name} ({doc.name})"
     return {
         "router": doc.name,
@@ -325,7 +326,7 @@ def _payload(s: dict, doc) -> dict:
         "script": router_script.connect_script(
             title=title, tunnel_ip=doc.tunnel_ip, hub_tunnel_ip=s["hub_tunnel_ip"],
             hub_public_key=s["hub_public_key"], endpoint_host=s["endpoint_host"],
-            endpoint_port=s["endpoint_port"], forwards=s["forwards"], device_lan_ip=device_ip),
+            endpoint_port=s["endpoint_port"], forwards=forwards),
         "remove_script": router_script.remove_script(title=title),
         "manual": {
             "address": f"{doc.tunnel_ip}/32",
@@ -334,8 +335,7 @@ def _payload(s: dict, doc) -> dict:
             "endpoint_port": s["endpoint_port"],
             "allowed_ips": f"{s['hub_tunnel_ip']}/32",
             "keepalive": 25,
-            "forwards": s["forwards"] if device_ip else [],
-            "device_lan_ip": device_ip,
+            "forwards": forwards,
             "hub_tunnel_ip": s["hub_tunnel_ip"],
         },
     }

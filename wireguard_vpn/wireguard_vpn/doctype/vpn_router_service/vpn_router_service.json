@@ -1,0 +1,128 @@
+{
+ "actions": [],
+ "creation": "2026-09-30 11:00:00.000000",
+ "modified": "2026-09-30 11:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "name": "VPN Router Service",
+ "module": "WireGuard VPN",
+ "engine": "InnoDB",
+ "links": [],
+ "states": [],
+ "index_web_pages_for_search": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "service_name",
+  "protocol",
+  "target",
+  "lan_ip",
+  "port",
+  "ext_port",
+  "enabled",
+  "column_break_svc",
+  "username",
+  "password",
+  "rdp_security",
+  "ignore_cert"
+ ],
+ "fields": [
+  {
+   "fieldname": "service_name",
+   "fieldtype": "Data",
+   "label": "Emri",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2,
+   "description": "p.sh. SSH router, Kiosk VNC, PC RDP"
+  },
+  {
+   "fieldname": "protocol",
+   "fieldtype": "Select",
+   "label": "Protokolli",
+   "options": "SSH\nVNC\nRDP",
+   "default": "SSH",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "target",
+   "fieldtype": "Select",
+   "label": "Ku",
+   "options": "Router\nPajisje në LAN",
+   "default": "Router",
+   "reqd": 1,
+   "in_list_view": 1,
+   "columns": 2
+  },
+  {
+   "fieldname": "lan_ip",
+   "fieldtype": "Data",
+   "label": "IP LAN",
+   "in_list_view": 1,
+   "columns": 2,
+   "depends_on": "eval:doc.target=='Pajisje në LAN'",
+   "mandatory_depends_on": "eval:doc.target=='Pajisje në LAN'",
+   "description": "p.sh. 192.168.1.50"
+  },
+  {
+   "fieldname": "port",
+   "fieldtype": "Int",
+   "label": "Porti te pajisja",
+   "description": "Bosh = default (SSH 22, VNC 5900, RDP 3389)"
+  },
+  {
+   "fieldname": "ext_port",
+   "fieldtype": "Int",
+   "label": "Porti në tunel",
+   "read_only": 1,
+   "in_list_view": 1,
+   "columns": 1,
+   "description": "Ndahet vetë. Stafi/Guacamole lidhet te Tunnel IP : ky port."
+  },
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Aktiv",
+   "default": "1",
+   "in_list_view": 1,
+   "columns": 1
+  },
+  {
+   "fieldname": "column_break_svc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "username",
+   "fieldtype": "Data",
+   "label": "Përdoruesi (opsional)",
+   "description": "Bosh = pyetet kur lidhesh"
+  },
+  {
+   "fieldname": "password",
+   "fieldtype": "Password",
+   "label": "Fjalëkalimi (opsional)",
+   "description": "Bosh = pyetet kur lidhesh (më e sigurt)"
+  },
+  {
+   "fieldname": "rdp_security",
+   "fieldtype": "Select",
+   "label": "RDP: siguria",
+   "options": "any\nnla\ntls\nrdp",
+   "default": "any",
+   "depends_on": "eval:doc.protocol=='RDP'"
+  },
+  {
+   "fieldname": "ignore_cert",
+   "fieldtype": "Check",
+   "label": "RDP: prano certifikatën e pajisjes",
+   "default": "1",
+   "depends_on": "eval:doc.protocol=='RDP'"
+  }
+ ],
+ "permissions": [],
+ "istable": 1,
+ "editable_grid": 0
+}

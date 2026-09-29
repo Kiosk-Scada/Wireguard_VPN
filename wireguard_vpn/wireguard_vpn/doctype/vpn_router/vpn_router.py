@@ -5,6 +5,7 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
+from wireguard_vpn.remote import forwards_signature, validate_services
 from wireguard_vpn.vpn import EVENT, LAN_IP_RE, log_event, next_tunnel_ip
 
 
@@ -15,6 +16,9 @@ class VPNRouter(Document):
             self.flags.auto_ip = True
         if not self.status:
             self.status = "Pending"
+        if not self.services:
+            self.append("services", {"service_name": "SSH router", "protocol": "SSH", "target": "Router",
+                                     "port": 22, "username": "root", "enabled": 1})
 
     def validate(self):
         self.site_name = (self.site_name or "").strip()
@@ -37,6 +41,16 @@ class VPNRouter(Document):
             frappe.throw(_("Router-i s'mund të jetë {0} pa public key.").format(self.status))
         if not self.is_new() and self.has_value_changed("tunnel_ip"):
             frappe.throw(_("Tunnel IP s'mund të ndryshohet."))
+        validate_services(self)
+
+    def on_update(self):
+        before = self.get_doc_before_save()
+        if before and self.public_key and not self.flags.from_migration and forwards_signature(before) != forwards_signature(self):
+            frappe.msgprint(
+                _("Portet e pajisjeve në LAN ndryshuan. Ekzekuto sërish skriptin në router "
+                  "(VPN → Skripti / çelësi i ri) — mund ta bësh edhe nga <b>Lidhu → SSH router</b>. "
+                  "Çelësi i router-it mbetet i njëjtë."),
+                title=_("Përditëso router-in"), indicator="orange")
 
     def db_insert(self, *args, **kwargs):
         # Dy insert-e paralele mund të marrin të njëjtën IP; indeksi unik e ndalon të dytin → IP tjetër.

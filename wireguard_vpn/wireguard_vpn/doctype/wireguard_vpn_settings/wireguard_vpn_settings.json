@@ -1,7 +1,7 @@
 {
  "actions": [],
- "creation": "2026-09-29 12:00:00.000000",
- "modified": "2026-09-29 12:00:00.000000",
+ "creation": "2026-09-30 11:00:00.000000",
+ "modified": "2026-09-30 11:00:00.000000",
  "modified_by": "Administrator",
  "owner": "Administrator",
  "doctype": "DocType",
@@ -40,7 +40,16 @@
   "column_break_network",
   "offline_after_seconds",
   "kiosk_forwards",
-  "event_retention_days"
+  "event_retention_days",
+  "section_remote",
+  "remote_enabled",
+  "guac_public_url",
+  "guac_internal_url",
+  "column_break_remote",
+  "guac_secret_key",
+  "remote_session_hours",
+  "remote_recording",
+  "guac_verify_tls"
  ],
  "fields": [
   {
@@ -192,16 +201,70 @@
   {
    "fieldname": "kiosk_forwards",
    "fieldtype": "Code",
-   "label": "Port-forward te pajisja LAN (JSON)",
+   "label": "Port-forward (v2.0, s'përdoret më)",
    "options": "JSON",
-   "default": "[{\"name\": \"ssh\", \"ext_port\": 2222, \"int_port\": 22}]",
-   "description": "Përdoret vetëm për router-at që kanë 'IP LAN e pajisjes'."
+   "hidden": 1,
+   "default": "[{\"name\": \"ssh\", \"ext_port\": 2222, \"int_port\": 22}]"
   },
   {
    "fieldname": "event_retention_days",
    "fieldtype": "Int",
    "label": "Mbaj historikun (ditë)",
    "default": "180"
+  },
+  {
+   "fieldname": "section_remote",
+   "fieldtype": "Section Break",
+   "label": "Qasja nga browser-i (Guacamole)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "remote_enabled",
+   "fieldtype": "Check",
+   "label": "Aktivizo butonat 'Lidhu' (SSH / VNC / RDP)",
+   "default": "0"
+  },
+  {
+   "fieldname": "guac_public_url",
+   "fieldtype": "Data",
+   "label": "Adresa e Guacamole për punëtorët",
+   "description": "p.sh. https://remote.pikapetrol.com (hapet në browser-in e punëtorit)"
+  },
+  {
+   "fieldname": "guac_internal_url",
+   "fieldtype": "Data",
+   "label": "Adresa e Guacamole nga serveri Frappe",
+   "default": "http://127.0.0.1:8085",
+   "description": "Frappe merr token-in këtu (default: porti lokal që hap guacamole.sh)"
+  },
+  {
+   "fieldname": "column_break_remote",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "guac_secret_key",
+   "fieldtype": "Password",
+   "label": "JSON Secret Key",
+   "description": "32 karaktere hex — nga output-i i guacamole.sh"
+  },
+  {
+   "fieldname": "remote_session_hours",
+   "fieldtype": "Int",
+   "label": "Kohëzgjatja maksimale e një sesioni (orë)",
+   "default": "8"
+  },
+  {
+   "fieldname": "remote_recording",
+   "fieldtype": "Check",
+   "label": "Incizo sesionet (në serverin e Guacamole)",
+   "default": "0"
+  },
+  {
+   "fieldname": "guac_verify_tls",
+   "fieldtype": "Check",
+   "label": "Verifiko certifikatën TLS të adresës së brendshme",
+   "default": "1",
+   "description": "Vlen vetëm nëse adresa e brendshme është https://"
   }
  ],
  "permissions": [

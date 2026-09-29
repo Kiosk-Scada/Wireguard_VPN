@@ -22,6 +22,10 @@ class WireGuardVPNSettings(Document):
             frappe.throw(_("Minutat e njoftimit s'mund të jenë negative."))
         for email in s["notify_emails"]:
             frappe.utils.validate_email_address(email, throw=True)
+        if self.remote_enabled:
+            from wireguard_vpn.remote import remote_settings_from_doc, validate_remote_settings
+
+            validate_remote_settings(remote_settings_from_doc(self))
         if self.has_value_changed("pool_cidr") and frappe.db.count("VPN Router"):
             frappe.msgprint(_("Kujdes: router-at ekzistues e mbajnë IP-në e tyre; pool-i i ri vlen për të rinjtë."),
                             indicator="orange")

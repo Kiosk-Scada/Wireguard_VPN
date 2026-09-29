@@ -31,6 +31,9 @@ class WireGuardVPNDashboard {
 	}
 
 	setup_actions() {
+		this.can_manage = frappe.user.has_role(["System Manager", "VPN Manager"]);
+		this.page.add_menu_item(__("Lista e router-ave"), () => frappe.set_route("List", "VPN Router"));
+		if (!this.can_manage) return;          // "VPN Remote Access": vetëm shikim + Lidhu
 		this.page.set_primary_action(__("Shto router"), () => frappe.new_doc("VPN Router"), "add");
 		this.page.add_inner_button(__("Import CSV"), () => this.import_dialog());
 		this.page.add_inner_button(__("Kontrollo tani"), () => {
@@ -56,7 +59,6 @@ class WireGuardVPNDashboard {
 				},
 			});
 		});
-		this.page.add_menu_item(__("Lista e router-ave"), () => frappe.set_route("List", "VPN Router"));
 		this.page.add_menu_item(__("Historiku"), () => frappe.set_route("List", "VPN Router Event"));
 		this.page.add_menu_item(__("Settings"), () => frappe.set_route("Form", "WireGuard VPN Settings"));
 	}
@@ -254,9 +256,10 @@ class WireGuardVPNDashboard {
 			["site_name", __("Lokacioni")], ["city", __("Qyteti")], ["customer", __("Klienti")],
 			["tunnel_ip", __("Tunnel IP")], ["status", __("Statusi")], ["last_handshake", __("Handshake")],
 		];
+		const remote = !!this.data.settings.remote;
 		const arrow = (k) => (this.sort.key === k ? (this.sort.dir > 0 ? " ▲" : " ▼") : "");
 		const $thead = this.$body.find(".wg-table thead").html(
-			`<tr>${cols.map(([k, l]) => `<th data-key="${k}">${l}${arrow(k)}</th>`).join("")}</tr>`);
+			`<tr>${cols.map(([k, l]) => `<th data-key="${k}">${l}${arrow(k)}</th>`).join("")}${remote ? "<th></th>" : ""}</tr>`);
 		$thead.find("th").on("click", (e) => {
 			const k = $(e.currentTarget).data("key");
 			this.sort = { key: k, dir: this.sort.key === k ? -this.sort.dir : (k === "last_handshake" ? -1 : 1) };
@@ -277,10 +280,17 @@ class WireGuardVPNDashboard {
 			  <td><span class="indicator-pill ${colors[r.status] || "gray"}">${labels[r.status] || __(r.status)}</span></td>
 			  <td>${r.last_handshake ? `<span title="${esc(r.last_handshake)}">${frappe.datetime.comment_when(r.last_handshake)}</span>` : '<span class="wg-muted">—</span>'}
 			      ${r.active_hub && r.status === "Active" ? `<div class="wg-muted">${esc(r.active_hub)}</div>` : ""}</td>
+			  ${remote ? `<td style="text-align:right">${(r.services || []).length && ["Active", "Offline", "Sync Error"].includes(r.status)
+				? `<button class="btn btn-xs btn-default wg-connect" data-name="${esc(r.name)}">${__("Lidhu")}</button>` : ""}</td>` : ""}
 			</tr>`).join("");
 		const $tb = this.$body.find(".wg-table tbody").html(html ||
-			`<tr><td colspan="6" class="text-center wg-muted" style="padding:28px">${this.data.total ? __("Asnjë router s'përputhet me filtrin.") : __("S'ka router-a ende — kliko <b>Shto router</b> ose <b>Import CSV</b>.")}</td></tr>`);
+			`<tr><td colspan="${remote ? 7 : 6}" class="text-center wg-muted" style="padding:28px">${this.data.total ? __("Asnjë router s'përputhet me filtrin.") : __("S'ka router-a ende — kliko <b>Shto router</b> ose <b>Import CSV</b>.")}</td></tr>`);
 		$tb.find("tr.wg-row").on("click", (e) => frappe.set_route("Form", "VPN Router", $(e.currentTarget).data("name")));
+		$tb.find(".wg-connect").on("click", (e) => {
+			e.stopPropagation();
+			const name = $(e.currentTarget).data("name");
+			this.connect_dialog(this.data.routers.find((x) => x.name === name));
+		});
 		this.$body.find(".wg-count").text(__("{0} nga {1}", [rows.length, this.data.total]));
 		const $more = this.$body.find(".wg-more").empty();
 		if (rows.length > shown.length) {
@@ -293,7 +303,7 @@ class WireGuardVPNDashboard {
 		const esc = frappe.utils.escape_html;
 		const colors = {
 			Created: "blue", Activated: "green", "Key Changed": "orange", Online: "green", Offline: "orange",
-			"Sync Error": "red", Revoked: "gray", "Hub Down": "red", "Hub Up": "green",
+			"Sync Error": "red", Revoked: "gray", "Hub Down": "red", "Hub Up": "green", "Remote Session": "purple",
 		};
 		const html = this.data.events.map((e) => {
 			const who = e.router
@@ -305,6 +315,48 @@ class WireGuardVPNDashboard {
 				<div class="wg-muted">${frappe.datetime.comment_when(e.creation)}</div></div>`;
 		}).join("");
 		this.$body.find(".wg-events").html(html || `<div class="wg-ev wg-muted">${__("S'ka ngjarje ende.")}</div>`);
+	}
+
+	// ------------------------------------------------------------------ Lidhu (Guacamole)
+	connect_dialog(r) {
+		if (!r) return;
+		const esc = frappe.utils.escape_html;
+		const d = new frappe.ui.Dialog({
+			title: __("Lidhu: {0}", [r.site_name]),
+			fields: [{
+				fieldtype: "HTML", fieldname: "list",
+				options: `<div class="wg-svc-list">${r.services.map((s) => `
+					<button class="btn btn-default btn-block wg-svc" data-svc="${esc(s.name)}" style="text-align:left;margin-bottom:6px">
+					  <b>${esc(s.protocol)}</b> · ${esc(s.service_name)}
+					  <span class="text-muted">— ${s.target === "Router" ? esc(r.tunnel_ip) + " (router)" : esc(s.lan_ip)}</span>
+					</button>`).join("")}</div>
+					${r.status !== "Active" ? `<p class="text-warning" style="margin-top:8px">${__("Router-i s'është online tani — lidhja mund të dështojë.")}</p>` : ""}`,
+			}],
+		});
+		d.$wrapper.find(".wg-svc").on("click", (e) => {
+			this.open_remote(r.name, $(e.currentTarget).data("svc"));
+			d.hide();
+		});
+		d.show();
+	}
+
+	open_remote(router, service) {
+		const w = window.open("", "_blank");       // brenda klikimit → s'bllokohet si popup
+		if (w) w.document.body.innerHTML = `<p style="font-family:sans-serif;padding:24px">${__("Duke u lidhur…")}</p>`;
+		frappe.call({
+			method: "wireguard_vpn.remote.connect",
+			args: { router, service },
+			callback: (r) => {
+				if (w && !w.closed) {
+					w.opener = null;
+					w.location.href = r.message.url;
+				} else {
+					frappe.msgprint(`<a href="${encodeURI(r.message.url)}" target="_blank" rel="noopener">${__("Hape lidhjen")}</a>`);
+				}
+				this.refresh(true);
+			},
+			error: () => { if (w && !w.closed) w.close(); },
+		});
 	}
 
 	// ------------------------------------------------------------------ Import CSV

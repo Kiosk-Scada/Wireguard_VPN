@@ -1,7 +1,7 @@
 {
  "charts": [],
  "content": "[{\"id\": \"wgHead0001\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>WireGuard VPN</b></span>\", \"col\": 12}}, {\"id\": \"wgShort001\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"VPN Dashboard\", \"col\": 3}}, {\"id\": \"wgShort002\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Router-at\", \"col\": 3}}, {\"id\": \"wgShort003\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Offline\", \"col\": 3}}, {\"id\": \"wgShort004\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Historiku\", \"col\": 3}}, {\"id\": \"wgSpacer01\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"wgCard0001\", \"type\": \"card\", \"data\": {\"card_name\": \"Router-at\", \"col\": 4}}, {\"id\": \"wgCard0002\", \"type\": \"card\", \"data\": {\"card_name\": \"Konfigurimi\", \"col\": 4}}]",
- "creation": "2026-09-29 12:00:00.000000",
+ "creation": "2026-09-30 11:00:00.000000",
  "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
@@ -73,7 +73,7 @@
    "dependencies": ""
   }
  ],
- "modified": "2026-09-29 12:00:00.000000",
+ "modified": "2026-09-30 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "WireGuard VPN",
  "name": "WireGuard VPN",
@@ -88,6 +88,9 @@
   },
   {
    "role": "VPN Manager"
+  },
+  {
+   "role": "VPN Remote Access"
   }
  ],
  "sequence_id": 50.0,

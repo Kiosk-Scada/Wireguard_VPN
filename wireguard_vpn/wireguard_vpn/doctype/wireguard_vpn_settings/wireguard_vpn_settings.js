@@ -31,6 +31,20 @@ frappe.ui.form.on("WireGuard VPN Settings", {
 			});
 		}, __("Testo"));
 
+		frm.add_custom_button(__("Testo Guacamole"), () => {
+			if (frm.is_dirty()) return frappe.msgprint(__("Ruaje së pari konfigurimin."));
+			frappe.call({
+				method: "wireguard_vpn.remote.test_guacamole",
+				freeze: true,
+				freeze_message: __("Po lidhem me Guacamole..."),
+				callback: (r) => show(__("Guacamole"), [
+					__("OK — çelësi pranohet (data source: {0})", [r.message.data_source]),
+					__("Adresa e brendshme: {0}", [r.message.internal_url]),
+					__("Punëtorët hapin: {0}", [r.message.public_url]),
+				], true),
+			});
+		}, __("Testo"));
+
 		frm.add_custom_button(__("Reconcile tani"), () => {
 			frappe.confirm(__("Hub-et do të marrin listën e plotë të router-ave nga Frappe. Vazhdo?"), () =>
 				frappe.call({

@@ -1,7 +1,7 @@
 {
  "actions": [],
- "creation": "2026-09-29 12:00:00.000000",
- "modified": "2026-09-29 12:00:00.000000",
+ "creation": "2026-09-30 11:00:00.000000",
+ "modified": "2026-09-30 11:00:00.000000",
  "modified_by": "Administrator",
  "owner": "Administrator",
  "doctype": "DocType",
@@ -45,7 +45,7 @@
    "fieldname": "event",
    "fieldtype": "Select",
    "label": "Ngjarja",
-   "options": "Created\nActivated\nKey Changed\nOnline\nOffline\nSync Error\nRevoked\nHub Down\nHub Up",
+   "options": "Created\nActivated\nKey Changed\nOnline\nOffline\nSync Error\nRevoked\nHub Down\nHub Up\nRemote Session",
    "reqd": 1,
    "read_only": 1,
    "in_list_view": 1,
@@ -89,6 +89,10 @@
    "read": 1,
    "report": 1,
    "export": 1
+  },
+  {
+   "role": "VPN Remote Access",
+   "read": 1
   }
  ],
  "autoname": "hash",

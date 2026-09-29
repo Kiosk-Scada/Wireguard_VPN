@@ -1,6 +1,8 @@
 [pre_model_sync]
 # Patches added in this section will be executed before doctypes are migrated
+wireguard_vpn.patches.v2_1.create_remote_role
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
 wireguard_vpn.patches.v2_0.migrate_peers_to_routers
+wireguard_vpn.patches.v2_1.add_router_services

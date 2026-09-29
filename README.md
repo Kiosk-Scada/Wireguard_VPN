@@ -1,4 +1,4 @@
-# WireGuard VPN — app për Frappe (v2)
+# WireGuard VPN — app për Frappe (v2.1)
 
 App i **pavarur** për qasjen VPN te router-at Teltonika RUT142. S'varet nga asnjë DocType tjetër
 (as `Client`, as Client Script, as MQTT): ka DocType-t, faqen dhe workspace-in e vet.
@@ -11,7 +11,9 @@ App i **pavarur** për qasjen VPN te router-at Teltonika RUT142. S'varet nga asn
   kërkim, filtra, historiku i fundit
 - **Njoftime**: Telegram dhe/ose email kur një router bie offline (pas X minutash), kur kthehet, dhe kur bie një hub
 - **Import CSV**: shumë lokacione njëherësh nga Excel
-- **Historiku** (`VPN Router Event`): krijime, aktivizime, online/offline, revokime, hub-e poshtë
+- **Historiku** (`VPN Router Event`): krijime, aktivizime, online/offline, revokime, hub-e poshtë, sesione "Lidhu"
+- **Lidhu nga browser-i** (v2.1): SSH / VNC / RDP te router-i ose te pajisjet pas tij, pa asnjë app në
+  laptop — përmes Apache Guacamole lokal (`guacamole.sh`), hyrja vetëm përmes Frappe
 - sinkronizim me **të dy hub-et** me SSH të kufizuar (`wgsync`), kontroll çdo 5 min, reconcile çdo orë
 
 | Pjesa | Ku |
@@ -21,7 +23,7 @@ App i **pavarur** për qasjen VPN te router-at Teltonika RUT142. S'varet nga asn
 | Router-at | `/app/vpn-router` |
 | Historiku | `/app/vpn-router-event` |
 | Konfigurimi | `/app/wireguard-vpn-settings` (vetëm System Manager) |
-| Roli | `VPN Manager` — stafi punon me router-at pa qenë System Manager |
+| Rolet | `VPN Manager` — menaxhon router-at · `VPN Remote Access` — vetëm sheh dhe klikon "Lidhu" |
 
 ---
 
@@ -74,6 +76,22 @@ Migrimi bëhet vetë:
 - Settings (hub-et, çelësi, Floating IP, SSH) **mbeten** siç ishin
 
 ---
+
+## 2c. Përditësimi v2.0 → v2.1 (repo në GitHub)
+
+```bash
+# në kompjuterin tënd: kopjo file-t e reja mbi klonin e repo-s (pa .git) dhe bëj push
+rsync -a --delete --exclude .git wireguard_vpn/ ~/Wireguard_VPN/
+cd ~/Wireguard_VPN && git add -A && git commit -m "v2.1.0: Lidhu (SSH/VNC/RDP) me Guacamole" && git push
+
+# në server
+cd ~/kiosk/apps/wireguard_vpn && git pull
+cd ~/kiosk && bench --site kiosk.site migrate
+# rinise serverin: Ctrl+C → bench start   (production: bench restart)
+```
+
+Migrimi i shton çdo router-i shërbimin **SSH router**, dhe atyre me *IP LAN e pajisjes* edhe **SSH pajisja**
+(2222 → 22, i njëjti port si në v2.0 — router-at s'kanë nevojë për skript të ri).
 
 ## 3. Çelësi SSH për hub-et (një herë)
 
@@ -179,5 +197,71 @@ bench --site SITE execute wireguard_vpn.vpn.job_reconcile --kwargs "{'max_drop':
 | S'vijnë njoftime | *Testo njoftimet*; shih `/app/error-log` ("VPN: njoftimi dështoi") |
 
 Log-et: `/app/error-log`, `logs/worker.error.log`, `logs/scheduler.log`.
+
+---
+
+## 9. Qasja nga browser-i: SSH / VNC / RDP (Guacamole)
+
+Punëtori hap Frappe → **VPN Dashboard → Lidhu** (ose te forma e router-it → **Lidhu**) dhe i hapet një tab
+me terminalin / desktopin e pajisjes. S'ka nevojë për Tailscale apo program tjetër në laptop.
+
+```
+Browser (LAN i zyrës) ──HTTPS──► Guacamole lokal (https://remote.pikapetrol.com)
+                                     │  Tailscale → Headscale → hub
+                                     ▼
+                         RUT142 10.50.x.y ──port-forward──► pajisja 192.168.1.x (SSH/VNC/RDP)
+```
+
+### 9.1 Instalimi i Guacamole (një herë, në serverin lokal — mund të jetë ai i Frappe)
+
+Te serveri Headscale krijo një key:  `sudo hs-authkey support-team 1h`, pastaj te serveri lokal:
+
+```bash
+sudo bash ./guacamole.sh        # file-i është te repo: deploy/guacamole.sh
+```
+
+Wizard-i pyet: domain-in (`remote.pikapetrol.com`), IP-në lokale, rrjetin e zyrës që lejohet, portin HTTPS
+(443, ose 8443 nëse 443 është i zënë), certifikatën (self-signed / Let's Encrypt me DNS / e jotja), key-n e
+Headscale dhe incizimin e sesioneve. Në fund shfaq vlerat për Frappe. Gjendja: `sudo bash guacamole.sh --status`.
+
+DNS: rekordi `A  remote.pikapetrol.com → IP-ja lokale e serverit` (te DNS-i i domain-it ose te DNS-i i zyrës).
+
+### 9.2 Frappe → WireGuard VPN Settings → Qasja nga browser-i
+
+| Fusha | Vlera |
+|---|---|
+| Aktivizo butonat 'Lidhu' | ✓ |
+| Adresa e Guacamole për punëtorët | `https://remote.pikapetrol.com` (+ `:8443` nëse s'është 443) |
+| Adresa e Guacamole nga serveri Frappe | `http://127.0.0.1:8085` |
+| JSON Secret Key | nga output-i i `guacamole.sh` |
+| Kohëzgjatja maksimale e sesionit | `8` orë |
+| Incizo sesionet | sipas dëshirës |
+
+**Save → Testo → Testo Guacamole.**
+
+### 9.3 Shërbimet te router-i
+
+Te forma e router-it, seksioni **Qasja nga browser-i**. Çdo router merr vetë **SSH router** (root@router).
+Për pajisjet pas router-it shto rreshta:
+
+| Emri | Protokolli | Ku | IP LAN | Porti te pajisja |
+|---|---|---|---|---|
+| Kiosk SSH | SSH | Pajisje në LAN | 192.168.1.50 | 22 |
+| Kiosk VNC | VNC | Pajisje në LAN | 192.168.1.50 | 5900 |
+| PC RDP | RDP | Pajisje në LAN | 192.168.1.80 | 3389 |
+
+*Porti në tunel* ndahet vetë (2222, 5900, 3389, …). **Pas ndryshimeve, ekzekuto sërish skriptin në router**
+(VPN → Skripti / çelësi i ri — mund ta bësh edhe nga *Lidhu → SSH router*); çelësi i router-it s'ndryshon.
+
+Përdoruesi/fjalëkalimi janë opsionalë: bosh = Guacamole i pyet kur lidhesh (më e sigurt).
+
+### 9.4 Siguria
+
+- Guacamole s'ka login të vetin: hyrja bëhet vetëm me token të nënshkruar nga Frappe (guacamole-auth-json,
+  `singleUse`, skadon pas "Kohëzgjatja maksimale").
+- nginx lejon vetëm rrjetin e zyrës; asgjë s'hapet në internet.
+- Çdo "Lidhu" ruhet te historiku (kush, ku, kur). Opsionale: incizimi i ekranit.
+- Aktivizo 2FA në Frappe (System Settings → Enable Two Factor Auth) — roli `VPN Remote Access` e kërkon.
+- Nëse lidhja bie, kliko sërish **Lidhu** në Frappe (butoni "Reconnect" i Guacamole s'ka gjithmonë të drejtë).
 
 Licenca: MIT.

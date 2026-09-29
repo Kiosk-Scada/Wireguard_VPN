@@ -1,7 +1,7 @@
 {
  "actions": [],
- "creation": "2026-09-29 12:00:00.000000",
- "modified": "2026-09-29 12:00:00.000000",
+ "creation": "2026-09-30 11:00:00.000000",
+ "modified": "2026-09-30 11:00:00.000000",
  "modified_by": "Administrator",
  "owner": "Administrator",
  "doctype": "DocType",
@@ -28,6 +28,8 @@
   "device_lan_ip",
   "mute_alerts",
   "notes",
+  "section_remote",
+  "services",
   "section_vpn",
   "status",
   "tunnel_ip",
@@ -113,7 +115,7 @@
    "fieldname": "device_lan_ip",
    "fieldtype": "Data",
    "label": "IP LAN e pajisjes (opsionale)",
-   "description": "Nëse pas router-it ke pajisje (kiosk, PC) ku do hysh me SSH: portet te Settings → Port-forward (default 2222 → 22). Lëre bosh nëse s'nevojitet."
+   "description": "Nëse pas router-it ke një pajisje (kiosk, PC): shtohet vetë shërbimi 'SSH pajisja' (porti 2222 → 22). Për VNC/RDP shto rreshta te 'Qasja nga browser-i'."
   },
   {
    "fieldname": "mute_alerts",
@@ -125,6 +127,18 @@
    "fieldname": "notes",
    "fieldtype": "Small Text",
    "label": "Shënime"
+  },
+  {
+   "fieldname": "section_remote",
+   "fieldtype": "Section Break",
+   "label": "Qasja nga browser-i (SSH / VNC / RDP)",
+   "description": "Çka mund të hapet nga Frappe me butonin 'Lidhu'. Për pajisjet në LAN, router-i hap një port në tunel (Porti në tunel) — pas ndryshimeve ekzekuto sërish skriptin e router-it."
+  },
+  {
+   "fieldname": "services",
+   "fieldtype": "Table",
+   "label": "Shërbimet",
+   "options": "VPN Router Service"
   },
   {
    "fieldname": "section_vpn",
@@ -250,6 +264,11 @@
    "print": 1,
    "email": 1,
    "share": 1
+  },
+  {
+   "role": "VPN Remote Access",
+   "read": 1,
+   "report": 1
   }
  ],
  "autoname": "format:RTR-{#####}",

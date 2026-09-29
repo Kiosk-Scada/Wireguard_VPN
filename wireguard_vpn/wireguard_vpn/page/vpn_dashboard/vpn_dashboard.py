@@ -1,12 +1,14 @@
 import frappe
 from frappe.utils import now_datetime
 
-from wireguard_vpn.vpn import DOCTYPE, EVENT, KEY_RE, hub_state, raw_settings, require_role
+from wireguard_vpn.remote import has_remote_role, remote_enabled_for_user
+from wireguard_vpn.vpn import DOCTYPE, EVENT, KEY_RE, hub_state, raw_settings
 
 
 @frappe.whitelist()
 def get_data():
-    require_role()
+    if not has_remote_role():          # System Manager, VPN Manager, VPN Remote Access
+        frappe.throw("Not permitted", frappe.PermissionError)
     s = raw_settings()
     routers = frappe.get_all(
         DOCTYPE,
@@ -15,6 +17,15 @@ def get_data():
         order_by="site_name asc",
         limit_page_length=0,
     )
+    remote = remote_enabled_for_user()
+    if remote:
+        by_router = {}
+        for svc in frappe.get_all("VPN Router Service", filters={"parenttype": DOCTYPE, "enabled": 1},
+                                  fields=["parent", "name", "service_name", "protocol", "target", "lan_ip"],
+                                  order_by="idx asc", limit_page_length=0):
+            by_router.setdefault(svc.pop("parent"), []).append(svc)
+        for r in routers:
+            r["services"] = by_router.get(r.name, [])
     counts = {k: 0 for k in ("Active", "Offline", "Pending", "Sync Error", "Revoked")}
     for r in routers:
         counts[r.status] = counts.get(r.status, 0) + 1
@@ -43,5 +54,6 @@ def get_data():
             "notify_enabled": s["notify_enabled"],
             "offline_after": s["offline_after"],
             "is_admin": "System Manager" in frappe.get_roles(),
+            "remote": remote,
         },
     }

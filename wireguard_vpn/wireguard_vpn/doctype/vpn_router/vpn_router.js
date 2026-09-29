@@ -21,6 +21,12 @@ frappe.ui.form.on("VPN Router", {
 		frm.page.set_indicator(__(st), WG_COLORS[st] || "gray");
 		wireguard_vpn_headline(frm);
 
+		if (!frappe.user.has_role(["System Manager", "VPN Manager"])) {
+			// "VPN Remote Access": vetëm Lidhu + historiku
+			frm.add_custom_button(__("Historiku"), () => frappe.set_route("List", "VPN Router Event", { router: frm.doc.name }), __("VPN"));
+			wireguard_vpn_remote_buttons(frm);
+			return;
+		}
 		if (st === "Pending" || st === "Revoked") {
 			frm.add_custom_button(__("Lidh router-in"), () => wireguard_vpn_connect_dialog(frm)).addClass("btn-primary");
 		} else {
@@ -59,6 +65,7 @@ frappe.ui.form.on("VPN Router", {
 			}, __("VPN"));
 		}
 		frm.add_custom_button(__("Historiku"), () => frappe.set_route("List", "VPN Router Event", { router: frm.doc.name }), __("VPN"));
+		wireguard_vpn_remote_buttons(frm);
 		frm.add_custom_button(__("VPN Dashboard"), () => frappe.set_route("vpn-dashboard"), __("VPN"));
 	},
 });
@@ -123,8 +130,8 @@ function wireguard_vpn_show_connect(frm, p) {
 	const m = p.manual;
 	let fwdRows = "";
 	(m.forwards || []).forEach((f) => {
-		fwdRows += `<tr><td>${__("Port forward")} (${esc(f.name)})</td><td>${__("Zona")} <code>okvpn</code>, ${__("porti")} <code>${f.ext_port}</code>
-			→ <code>${esc(m.device_lan_ip)}:${f.int_port}</code> (${esc(f.proto)}), ${__("burimi")} <code>${esc(m.hub_tunnel_ip)}</code></td></tr>`;
+		fwdRows += `<tr><td>${__("Port forward")} (${esc(f.service || f.name)})</td><td>${__("Zona")} <code>okvpn</code>, ${__("porti")} <code>${f.ext_port}</code>
+			→ <code>${esc(f.lan_ip)}:${f.int_port}</code> (${esc(f.proto)}), ${__("burimi")} <code>${esc(m.hub_tunnel_ip)}</code></td></tr>`;
 	});
 	const already = !!p.public_key;
 	const d = new frappe.ui.Dialog({
@@ -199,4 +206,50 @@ ${already ? `<div class="alert alert-warning" style="font-size:12px;margin:0">${
 	d.show();
 	d.$wrapper.find(".wg-copy").on("click", () => frappe.utils.copy_to_clipboard(p.script));
 	d.$wrapper.find(".wg-dl").on("click", () => wireguard_vpn_download(`okvpn-${p.router}.sh`, p.script));
+}
+
+// ------------------------------------------------------------------ Qasja nga browser-i (Guacamole)
+function wireguard_vpn_remote_state() {
+	if (!window.__wg_remote_state) {
+		window.__wg_remote_state = frappe.xcall("wireguard_vpn.remote.ui_state").catch(() => ({ enabled: false }));
+	}
+	return window.__wg_remote_state;
+}
+
+function wireguard_vpn_open_remote(router, service) {
+	// Dritarja hapet menjëherë (brenda klikimit), që browser-i të mos e bllokojë si popup.
+	const w = window.open("", "_blank");
+	if (w) {
+		w.document.title = __("Duke u lidhur…");
+		w.document.body.innerHTML = `<p style="font-family:sans-serif;padding:24px">${__("Duke u lidhur…")}</p>`;
+	}
+	frappe.call({
+		method: "wireguard_vpn.remote.connect",
+		args: { router, service },
+		callback: (r) => {
+			const x = r.message;
+			if (x.offline) frappe.show_alert({ message: __("Router-i duket offline — lidhja mund të dështojë."), indicator: "orange" });
+			if (w && !w.closed) {
+				w.opener = null;
+				w.location.href = x.url;
+			} else {
+				frappe.msgprint(`<a href="${encodeURI(x.url)}" target="_blank" rel="noopener">${__("Hape lidhjen: {0}", [frappe.utils.escape_html(x.title)])}</a>`);
+			}
+		},
+		error: () => { if (w && !w.closed) w.close(); },
+	});
+}
+
+function wireguard_vpn_remote_buttons(frm) {
+	if (["Pending", "Revoked"].includes(frm.doc.status)) return;
+	const services = (frm.doc.services || []).filter((s) => s.enabled);
+	if (!services.length) return;
+	wireguard_vpn_remote_state().then((st) => {
+		if (!st || !st.enabled || frm.is_dirty()) return;
+		services.forEach((s) => {
+			const where = s.target === "Router" ? __("router") : s.lan_ip;
+			frm.add_custom_button(frappe.utils.escape_html(`${s.protocol} · ${s.service_name} (${where})`),
+				() => wireguard_vpn_open_remote(frm.doc.name, s.name), __("Lidhu"));
+		});
+	});
 }

@@ -5,7 +5,8 @@ Skripti i lidhjes:
     ekzekutimi i dytë s'e ndërron çelësin), që s'largohet kurrë nga router-i
   * krijon interface-in `okvpn` + peer-in drejt hub-it (Floating IP)
   * firewall: nga tuneli pranohet vetëm trafiku që vjen nga hub-i (10.50.0.1)
-  * opsionale: port-forward drejt një pajisjeje në LAN (p.sh. 2222 → 192.168.1.50:22)
+  * opsionale: port-forward drejt pajisjeve në LAN (shërbimet e router-it te Frappe,
+    p.sh. 2222 → 192.168.1.50:22, 5900 → 192.168.1.60:5900)
   * në fund shfaq PUBLIC KEY-in e router-it — ai ngjitet te Frappe → Aktivizo
 """
 from __future__ import annotations
@@ -30,7 +31,7 @@ def _clear_firewall() -> list[str]:
 
 def connect_script(*, title: str, tunnel_ip: str, hub_tunnel_ip: str, hub_public_key: str,
                    endpoint_host: str, endpoint_port: int, forwards: list[dict],
-                   device_lan_ip: str | None, keepalive: int = 25) -> str:
+                   device_lan_ip: str | None = None, keepalive: int = 25) -> str:
     hub = hub_tunnel_ip
     lines = [
         f"# WireGuard VPN — {_comment(title)} — {tunnel_ip}",
@@ -70,8 +71,9 @@ def connect_script(*, title: str, tunnel_ip: str, hub_tunnel_ip: str, hub_public
         f"uci set firewall.{IFACE}_in.proto='all'",
         f"uci set firewall.{IFACE}_in.target='ACCEPT'",
     ]
-    if device_lan_ip:
-        for fwd in forwards:
+    for fwd in forwards:
+        lan_ip = fwd.get("lan_ip") or device_lan_ip
+        if lan_ip:
             sec = f"firewall.{IFACE}_fwd_{fwd['name']}"
             lines += [
                 f"uci set {sec}=redirect",
@@ -80,7 +82,7 @@ def connect_script(*, title: str, tunnel_ip: str, hub_tunnel_ip: str, hub_public
                 f"uci set {sec}.src_ip='{hub}'",
                 f"uci set {sec}.src_dport='{int(fwd['ext_port'])}'",
                 f"uci set {sec}.dest='lan'",
-                f"uci set {sec}.dest_ip='{device_lan_ip}'",
+                f"uci set {sec}.dest_ip='{lan_ip}'",
                 f"uci set {sec}.dest_port='{int(fwd['int_port'])}'",
                 f"uci set {sec}.proto='{fwd['proto']}'",
                 f"uci set {sec}.target='DNAT'",
