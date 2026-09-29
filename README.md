@@ -29,7 +29,7 @@ App i **pavarur** për qasjen VPN te router-at Teltonika RUT142. S'varet nga asn
 
 | Çka | Versioni |
 |---|---|
-| Frappe Framework | **v15** (testuar me 15.121) ose v16 |
+| Frappe Framework | **v15** (testuar me 15.121) |
 | Python | ≥ 3.10 (ai i bench-it) |
 | Redis, worker, scheduler | si në çdo instalim normal të Frappe |
 | `openssh-client` (sistem) | për `ssh-keygen` dhe `ssh-keyscan` |
