@@ -1,0 +1,24 @@
+[project]
+name = "wireguard_vpn"
+authors = [
+    { name = "Bleron", email = "bleronos6@gmail.com" },
+]
+description = "WireGuard VPN për router-at RUT142: lidhja, monitorimi dhe njoftimet nga Frappe"
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+dynamic = ["version"]
+dependencies = [
+    "paramiko>=3.4,<5",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=15.0.0,<17.0.0"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"

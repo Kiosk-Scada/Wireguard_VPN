@@ -1,0 +1,264 @@
+{
+ "actions": [],
+ "creation": "2026-09-29 12:00:00.000000",
+ "modified": "2026-09-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "name": "VPN Router",
+ "module": "WireGuard VPN",
+ "engine": "InnoDB",
+ "links": [],
+ "states": [],
+ "index_web_pages_for_search": 0,
+ "sort_field": "site_name",
+ "sort_order": "ASC",
+ "field_order": [
+  "section_site",
+  "site_name",
+  "site_code",
+  "customer",
+  "city",
+  "address",
+  "column_break_site",
+  "contact_name",
+  "contact_phone",
+  "router_model",
+  "router_serial",
+  "device_lan_ip",
+  "mute_alerts",
+  "notes",
+  "section_vpn",
+  "status",
+  "tunnel_ip",
+  "public_key",
+  "column_break_vpn",
+  "last_handshake",
+  "active_hub",
+  "status_changed_on",
+  "provisioned_on",
+  "hub_synced_on",
+  "offline_notified",
+  "section_errors",
+  "last_error"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_site",
+   "fieldtype": "Section Break",
+   "label": "Lokacioni"
+  },
+  {
+   "fieldname": "site_name",
+   "fieldtype": "Data",
+   "label": "Emri i lokacionit",
+   "reqd": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "in_global_search": 1,
+   "bold": 1,
+   "description": "P.sh. Pika Petrol – Prishtinë 3"
+  },
+  {
+   "fieldname": "site_code",
+   "fieldtype": "Data",
+   "label": "Kodi (opsional)",
+   "in_standard_filter": 1,
+   "description": "Kodi yt i brendshëm i lokacionit/kioskut, nëse ke."
+  },
+  {
+   "fieldname": "customer",
+   "fieldtype": "Data",
+   "label": "Klienti / Kompania",
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "city",
+   "fieldtype": "Data",
+   "label": "Qyteti",
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "address",
+   "fieldtype": "Small Text",
+   "label": "Adresa"
+  },
+  {
+   "fieldname": "column_break_site",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "contact_name",
+   "fieldtype": "Data",
+   "label": "Personi kontaktues"
+  },
+  {
+   "fieldname": "contact_phone",
+   "fieldtype": "Data",
+   "label": "Telefoni"
+  },
+  {
+   "fieldname": "router_model",
+   "fieldtype": "Data",
+   "label": "Modeli i router-it",
+   "default": "RUT142"
+  },
+  {
+   "fieldname": "router_serial",
+   "fieldtype": "Data",
+   "label": "Nr. serik i router-it"
+  },
+  {
+   "fieldname": "device_lan_ip",
+   "fieldtype": "Data",
+   "label": "IP LAN e pajisjes (opsionale)",
+   "description": "Nëse pas router-it ke pajisje (kiosk, PC) ku do hysh me SSH: portet te Settings → Port-forward (default 2222 → 22). Lëre bosh nëse s'nevojitet."
+  },
+  {
+   "fieldname": "mute_alerts",
+   "fieldtype": "Check",
+   "label": "Pa njoftime për këtë router",
+   "default": "0"
+  },
+  {
+   "fieldname": "notes",
+   "fieldtype": "Small Text",
+   "label": "Shënime"
+  },
+  {
+   "fieldname": "section_vpn",
+   "fieldtype": "Section Break",
+   "label": "VPN"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Statusi",
+   "options": "Pending\nActive\nOffline\nSync Error\nRevoked",
+   "default": "Pending",
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "tunnel_ip",
+   "fieldtype": "Data",
+   "label": "Tunnel IP",
+   "read_only": 1,
+   "unique": 1,
+   "in_list_view": 1,
+   "in_global_search": 1,
+   "no_copy": 1,
+   "description": "Ndahet automatikisht nga pool-i kur ruhet router-i."
+  },
+  {
+   "fieldname": "public_key",
+   "fieldtype": "Data",
+   "label": "Router Public Key",
+   "length": 64,
+   "read_only": 1,
+   "no_copy": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "column_break_vpn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "last_handshake",
+   "fieldtype": "Datetime",
+   "label": "Handshake i fundit",
+   "read_only": 1,
+   "in_list_view": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "active_hub",
+   "fieldtype": "Data",
+   "label": "Hub aktiv",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "status_changed_on",
+   "fieldtype": "Datetime",
+   "label": "Statusi ndryshoi më",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "provisioned_on",
+   "fieldtype": "Datetime",
+   "label": "Aktivizuar më",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "hub_synced_on",
+   "fieldtype": "Datetime",
+   "label": "Sinkronizuar me hub-et",
+   "read_only": 1,
+   "no_copy": 1
+  },
+  {
+   "fieldname": "offline_notified",
+   "fieldtype": "Check",
+   "label": "Njoftimi offline u dërgua",
+   "read_only": 1,
+   "hidden": 1,
+   "no_copy": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "section_errors",
+   "fieldtype": "Section Break",
+   "label": "Gabimi i fundit",
+   "collapsible": 1,
+   "depends_on": "last_error"
+  },
+  {
+   "fieldname": "last_error",
+   "fieldtype": "Small Text",
+   "label": "Gabimi i fundit",
+   "read_only": 1,
+   "no_copy": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  },
+  {
+   "role": "VPN Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "autoname": "format:RTR-{#####}",
+ "naming_rule": "Expression",
+ "title_field": "site_name",
+ "show_title_field_in_link": 1,
+ "search_fields": "site_code,customer,city,tunnel_ip",
+ "track_changes": 1,
+ "allow_rename": 0,
+ "make_attachments_public": 0,
+ "description": "Një router (RUT142) i lidhur me VPN — lokacioni dhe gjendja e tunelit."
+}

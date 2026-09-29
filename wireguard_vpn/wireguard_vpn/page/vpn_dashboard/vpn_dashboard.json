@@ -1,0 +1,26 @@
+{
+ "content": null,
+ "creation": "2026-09-29 12:00:00.000000",
+ "modified": "2026-09-29 12:00:00.000000",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "module": "WireGuard VPN",
+ "name": "vpn-dashboard",
+ "owner": "Administrator",
+ "modified_by": "Administrator",
+ "page_name": "vpn-dashboard",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "VPN Manager"
+  }
+ ],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "VPN Dashboard"
+}

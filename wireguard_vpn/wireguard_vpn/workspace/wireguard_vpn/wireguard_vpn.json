@@ -1,0 +1,126 @@
+{
+ "charts": [],
+ "content": "[{\"id\": \"wgHead0001\", \"type\": \"header\", \"data\": {\"text\": \"<span class=\\\"h4\\\"><b>WireGuard VPN</b></span>\", \"col\": 12}}, {\"id\": \"wgShort001\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"VPN Dashboard\", \"col\": 3}}, {\"id\": \"wgShort002\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Router-at\", \"col\": 3}}, {\"id\": \"wgShort003\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Offline\", \"col\": 3}}, {\"id\": \"wgShort004\", \"type\": \"shortcut\", \"data\": {\"shortcut_name\": \"Historiku\", \"col\": 3}}, {\"id\": \"wgSpacer01\", \"type\": \"spacer\", \"data\": {\"col\": 12}}, {\"id\": \"wgCard0001\", \"type\": \"card\", \"data\": {\"card_name\": \"Router-at\", \"col\": 4}}, {\"id\": \"wgCard0002\", \"type\": \"card\", \"data\": {\"card_name\": \"Konfigurimi\", \"col\": 4}}]",
+ "creation": "2026-09-29 12:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "lock",
+ "idx": 0,
+ "is_hidden": 0,
+ "label": "WireGuard VPN",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Router-at",
+   "link_count": 3,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "VPN Dashboard",
+   "link_count": 0,
+   "link_to": "vpn-dashboard",
+   "link_type": "Page",
+   "onboard": 0,
+   "type": "Link",
+   "dependencies": ""
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "VPN Router",
+   "link_count": 0,
+   "link_to": "VPN Router",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link",
+   "dependencies": ""
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "VPN Router Event",
+   "link_count": 0,
+   "link_to": "VPN Router Event",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link",
+   "dependencies": ""
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Konfigurimi",
+   "link_count": 1,
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "WireGuard VPN Settings",
+   "link_count": 0,
+   "link_to": "WireGuard VPN Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link",
+   "dependencies": ""
+  }
+ ],
+ "modified": "2026-09-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "WireGuard VPN",
+ "name": "WireGuard VPN",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "VPN Manager"
+  }
+ ],
+ "sequence_id": 50.0,
+ "shortcuts": [
+  {
+   "label": "VPN Dashboard",
+   "link_to": "vpn-dashboard",
+   "type": "Page",
+   "color": "Blue"
+  },
+  {
+   "label": "Router-at",
+   "link_to": "VPN Router",
+   "type": "DocType",
+   "doc_view": "List",
+   "stats_filter": "[]",
+   "color": "Grey"
+  },
+  {
+   "label": "Offline",
+   "link_to": "VPN Router",
+   "type": "DocType",
+   "doc_view": "List",
+   "stats_filter": "[[\"VPN Router\",\"status\",\"=\",\"Offline\",false]]",
+   "color": "Orange"
+  },
+  {
+   "label": "Historiku",
+   "link_to": "VPN Router Event",
+   "type": "DocType",
+   "doc_view": "List",
+   "color": "Grey"
+  }
+ ],
+ "title": "WireGuard VPN"
+}

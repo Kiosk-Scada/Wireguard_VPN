@@ -1,0 +1,220 @@
+{
+ "actions": [],
+ "creation": "2026-09-29 12:00:00.000000",
+ "modified": "2026-09-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "name": "WireGuard VPN Settings",
+ "module": "WireGuard VPN",
+ "engine": "InnoDB",
+ "links": [],
+ "states": [],
+ "index_web_pages_for_search": 0,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "field_order": [
+  "enabled",
+  "section_hubs",
+  "hubs",
+  "hub_public_key",
+  "endpoint_host",
+  "endpoint_port",
+  "column_break_hubs",
+  "sync_user",
+  "sync_key_path",
+  "known_hosts_path",
+  "section_notify",
+  "notify_enabled",
+  "notify_after_minutes",
+  "notify_recovery",
+  "notify_group_threshold",
+  "column_break_notify",
+  "telegram_bot_token",
+  "telegram_chat_id",
+  "notify_emails",
+  "section_network",
+  "pool_cidr",
+  "hub_tunnel_ip",
+  "reserved_ranges",
+  "column_break_network",
+  "offline_after_seconds",
+  "kiosk_forwards",
+  "event_retention_days"
+ ],
+ "fields": [
+  {
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Aktiv (kontrolli i handshake, njoftimet, reconcile)",
+   "default": "0"
+  },
+  {
+   "fieldname": "section_hubs",
+   "fieldtype": "Section Break",
+   "label": "Hub-et WireGuard"
+  },
+  {
+   "fieldname": "hubs",
+   "fieldtype": "Small Text",
+   "label": "Hub-et (IP publike, një për rresht)",
+   "description": "p.sh.<br>46.224.147.121<br>2.28.114.90"
+  },
+  {
+   "fieldname": "hub_public_key",
+   "fieldtype": "Data",
+   "label": "Hub Public Key",
+   "length": 64,
+   "description": "Nga output-i i hub-1.sh (i njëjtë te të dy hub-et)"
+  },
+  {
+   "fieldname": "endpoint_host",
+   "fieldtype": "Data",
+   "label": "Endpoint Host (Floating IP)",
+   "description": "p.sh. 46.225.250.72"
+  },
+  {
+   "fieldname": "endpoint_port",
+   "fieldtype": "Int",
+   "label": "Endpoint Port",
+   "default": "51820"
+  },
+  {
+   "fieldname": "column_break_hubs",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sync_user",
+   "fieldtype": "Data",
+   "label": "SSH User te hub-et",
+   "default": "wgsync"
+  },
+  {
+   "fieldname": "sync_key_path",
+   "fieldtype": "Data",
+   "label": "SSH Private Key Path",
+   "default": "/home/frappe/.ssh/wgsync_ed25519"
+  },
+  {
+   "fieldname": "known_hosts_path",
+   "fieldtype": "Data",
+   "label": "Known Hosts Path",
+   "default": "/home/frappe/.ssh/known_hosts_wg"
+  },
+  {
+   "fieldname": "section_notify",
+   "fieldtype": "Section Break",
+   "label": "Njoftimet (router offline / online)",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "notify_enabled",
+   "fieldtype": "Check",
+   "label": "Dërgo njoftime",
+   "default": "0"
+  },
+  {
+   "fieldname": "notify_after_minutes",
+   "fieldtype": "Int",
+   "label": "Njofto pasi router-i është offline (minuta)",
+   "default": "10",
+   "description": "Router-i duhet të jetë pa handshake kaq minuta para njoftimit (shmang alarmet kur LTE rilidhet për pak)."
+  },
+  {
+   "fieldname": "notify_recovery",
+   "fieldtype": "Check",
+   "label": "Njofto edhe kur kthehet online",
+   "default": "1"
+  },
+  {
+   "fieldname": "notify_group_threshold",
+   "fieldtype": "Int",
+   "label": "Listo me detaje deri në (router-a)",
+   "default": "5",
+   "description": "Kur bien më shumë router-a njëherësh, dërgohet një mesazh i vetëm përmbledhës."
+  },
+  {
+   "fieldname": "column_break_notify",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "telegram_bot_token",
+   "fieldtype": "Password",
+   "label": "Telegram Bot Token",
+   "description": "Nga @BotFather. Lëre bosh nëse s'përdor Telegram."
+  },
+  {
+   "fieldname": "telegram_chat_id",
+   "fieldtype": "Data",
+   "label": "Telegram Chat ID",
+   "description": "ID e grupit/personit (p.sh. -1001234567890)."
+  },
+  {
+   "fieldname": "notify_emails",
+   "fieldtype": "Small Text",
+   "label": "Email-at (një për rresht)",
+   "description": "Kërkon Email Account dalës të konfiguruar në Frappe."
+  },
+  {
+   "fieldname": "section_network",
+   "fieldtype": "Section Break",
+   "label": "Rrjeti i tuneleve",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "pool_cidr",
+   "fieldtype": "Data",
+   "label": "Pool CIDR",
+   "default": "10.50.0.0/15"
+  },
+  {
+   "fieldname": "hub_tunnel_ip",
+   "fieldtype": "Data",
+   "label": "Hub Tunnel IP",
+   "default": "10.50.0.1"
+  },
+  {
+   "fieldname": "reserved_ranges",
+   "fieldtype": "Small Text",
+   "label": "Range të rezervuara (një për rresht)",
+   "default": "10.50.0.0/24\n10.50.255.0/24"
+  },
+  {
+   "fieldname": "column_break_network",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "offline_after_seconds",
+   "fieldtype": "Int",
+   "label": "Offline pas (sekonda pa handshake)",
+   "default": "300"
+  },
+  {
+   "fieldname": "kiosk_forwards",
+   "fieldtype": "Code",
+   "label": "Port-forward te pajisja LAN (JSON)",
+   "options": "JSON",
+   "default": "[{\"name\": \"ssh\", \"ext_port\": 2222, \"int_port\": 22}]",
+   "description": "Përdoret vetëm për router-at që kanë 'IP LAN e pajisjes'."
+  },
+  {
+   "fieldname": "event_retention_days",
+   "fieldtype": "Int",
+   "label": "Mbaj historikun (ditë)",
+   "default": "180"
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "print": 1,
+   "email": 1,
+   "share": 1
+  }
+ ],
+ "issingle": 1,
+ "track_changes": 1
+}

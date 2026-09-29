@@ -1,0 +1,99 @@
+{
+ "actions": [],
+ "creation": "2026-09-29 12:00:00.000000",
+ "modified": "2026-09-29 12:00:00.000000",
+ "modified_by": "Administrator",
+ "owner": "Administrator",
+ "doctype": "DocType",
+ "name": "VPN Router Event",
+ "module": "WireGuard VPN",
+ "engine": "InnoDB",
+ "links": [],
+ "states": [],
+ "index_web_pages_for_search": 0,
+ "sort_field": "creation",
+ "sort_order": "DESC",
+ "field_order": [
+  "router",
+  "site_name",
+  "event",
+  "column_break_ev",
+  "hub",
+  "user",
+  "details"
+ ],
+ "fields": [
+  {
+   "fieldname": "router",
+   "fieldtype": "Link",
+   "label": "Router",
+   "options": "VPN Router",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "search_index": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "site_name",
+   "fieldtype": "Data",
+   "label": "Lokacioni",
+   "fetch_from": "router.site_name",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "event",
+   "fieldtype": "Select",
+   "label": "Ngjarja",
+   "options": "Created\nActivated\nKey Changed\nOnline\nOffline\nSync Error\nRevoked\nHub Down\nHub Up",
+   "reqd": 1,
+   "read_only": 1,
+   "in_list_view": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "column_break_ev",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "hub",
+   "fieldtype": "Data",
+   "label": "Hub",
+   "read_only": 1,
+   "in_standard_filter": 1
+  },
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "label": "Përdoruesi",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "details",
+   "fieldtype": "Small Text",
+   "label": "Detaje",
+   "read_only": 1
+  }
+ ],
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "delete": 1,
+   "report": 1,
+   "export": 1
+  },
+  {
+   "role": "VPN Manager",
+   "read": 1,
+   "report": 1,
+   "export": 1
+  }
+ ],
+ "autoname": "hash",
+ "naming_rule": "Random",
+ "in_create": 1,
+ "title_field": "site_name",
+ "description": "Historiku: aktivizime, online/offline, revokime, hub-e."
+}
