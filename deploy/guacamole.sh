@@ -260,21 +260,45 @@ ts_running() {
   tailscale status --json 2>/dev/null | python3 -c 'import json,sys; sys.exit(0 if json.load(sys.stdin).get("BackendState")=="Running" else 1)' 2>/dev/null
 }
 
+# LAN-i i zyrës brenda 100.64.0.0/10 (p.sh. 100.100.100.0/24)? Atëherë rregulli anti-spoofing i Tailscale
+# (iptables: DROP për 100.64.0.0/10 që s'vjen nga tailscale0) e bllokon krejt LAN-in → SSH/web s'punojnë.
+lan_in_cgnat() {
+  python3 - "$SERVER_LAN_IP ${ALLOW_CIDRS//,/ }" <<'PY' >/dev/null 2>&1
+import ipaddress, sys
+cg = ipaddress.ip_network("100.64.0.0/10")
+items = [x for x in sys.argv[1].split() if x]
+sys.exit(0 if any(ipaddress.ip_network(x, strict=False).overlaps(cg) for x in items) else 1)
+PY
+}
+
 setup_tailscale() {
   say "Tailscale → Headscale"
   if ! command -v tailscale >/dev/null 2>&1; then
     curl -fsSL https://tailscale.com/install.sh | sh >/dev/null || die "Instalimi i Tailscale dështoi."
   fi
   systemctl enable --now tailscaled >/dev/null 2>&1 || true
+  local host nf=()
+  host="okremote-$(hostname -s | tr -cd 'a-zA-Z0-9-' | cut -c1-40)"
+  if lan_in_cgnat; then
+    warn "LAN-i i këtij serveri (${SERVER_LAN_IP}) është brenda 100.64.0.0/10 — i njëjti range si Tailscale."
+    warn "Përdor --netfilter-mode=off, përndryshe Tailscale e bllokon SSH/HTTPS nga zyra."
+    nf=(--netfilter-mode=off)
+  fi
   if ts_running; then
-    # --accept-routes: rrugët 10.50.0.0/15 nga hub-et; --accept-dns=false: mos e prek DNS-in e serverit
-    tailscale set --accept-routes=true --accept-dns=false >/dev/null 2>&1 \
-      || warn "S'u vendos --accept-routes me 'tailscale set' — kontrollo me: tailscale debug prefs"
-    ok "Tailscale ishte i lidhur; u sigurua --accept-routes"
+    if (( ${#nf[@]} )); then
+      tailscale up --reset --login-server="${LOGIN_SERVER%/}" --accept-routes --accept-dns=false "${nf[@]}" \
+        --hostname="$host" || die "tailscale up --netfilter-mode=off dështoi"
+      ok "Tailscale: --accept-routes, --netfilter-mode=off"
+    else
+      # --accept-routes: rrugët 10.50.0.0/15 nga hub-et; --accept-dns=false: mos e prek DNS-in e serverit
+      tailscale set --accept-routes=true --accept-dns=false >/dev/null 2>&1 \
+        || warn "S'u vendos --accept-routes me 'tailscale set' — kontrollo me: tailscale debug prefs"
+      ok "Tailscale ishte i lidhur; u sigurua --accept-routes"
+    fi
   else
     [[ -n "${TS_AUTHKEY:-}" ]] || die "Tailscale s'është i lidhur dhe s'ka auth key — xhiroje me --reconfigure."
     tailscale up --login-server="${LOGIN_SERVER%/}" --authkey="$TS_AUTHKEY" --accept-routes --accept-dns=false \
-      --hostname="okremote-$(hostname -s | tr -cd 'a-zA-Z0-9-' | cut -c1-40)" \
+      "${nf[@]}" --hostname="$host" \
       || die "tailscale up dështoi (key i skaduar? krijo të ri: sudo hs-authkey support-team 1h)"
     ok "Tailscale u lidh me ${LOGIN_SERVER}"
   fi
@@ -441,7 +465,7 @@ start_stack() {
   compose exec -T nginx nginx -s reload >/dev/null 2>&1 || true
   local code=""
   for _ in $(seq 1 60); do
-    code="$(curl -s --noproxy '*' -o /dev/null -w '%{http_code}' "http://127.0.0.1:${LOCAL_PORT}/" || true)"
+    code="$(curl -s --noproxy '*' --max-time 5 -o /dev/null -w '%{http_code}' "http://127.0.0.1:${LOCAL_PORT}/" || true)"
     [[ "$code" == 200 ]] && break
     sleep 2
   done
@@ -470,7 +494,7 @@ except Exception: print("")' 2>/dev/null)"
     return 1
   fi
   local https_code
-  https_code="$(curl -sk --noproxy '*' -o /dev/null -w '%{http_code}' --resolve "${DOMAIN}:${HTTPS_PORT}:${SERVER_LAN_IP}" \
+  https_code="$(curl -sk --noproxy '*' --max-time 10 -o /dev/null -w '%{http_code}' --resolve "${DOMAIN}:${HTTPS_PORT}:${SERVER_LAN_IP}" \
                 "https://${DOMAIN}:${HTTPS_PORT}/" || true)"
   case "$https_code" in
     200) ok "HTTPS (nginx) punon: https://${DOMAIN}:${HTTPS_PORT}" ;;
